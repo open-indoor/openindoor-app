@@ -72,7 +72,7 @@ export default class MapComponent extends Vue {
   renderMap() {
     this.map = new mapboxgl.Map({
       container: this.$refs.map as HTMLElement,
-      style:'https://app-gke.openindoor.io/style/openindoorStyle_'+this.mapState.country+'.json',
+      style:'https://app-sandbox.openindoor.io/style/openindoorStyle_'+this.mapState.country+'.json',
       center: this.mapState.center,
       pitch: this.mapState.pitch,
       maxPitch: this.mapState.maxPitch,
@@ -242,7 +242,7 @@ export default class MapComponent extends Vue {
 
     that.map.on("load", () => {
       that.map.loadImage(
-        "https://app-gke.openindoor.io/custom_marker.png",
+        "https://app-sandbox.openindoor.io/custom_marker.png",
         (error, image) => {
           if (error) throw error;
           that.map.addImage("custom-marker", image);
@@ -251,7 +251,7 @@ export default class MapComponent extends Vue {
           that.map.addSource("pins", {
             type: "geojson",
             data:
-              "https://app-gke.openindoor.io/places/pins/thailand/pins.geojson"
+              "https://app-sandbox.openindoor.io/places/pins/thailand/pins.geojson"
           });
           that.map.addLayer({
             id: "pins",
@@ -270,7 +270,7 @@ export default class MapComponent extends Vue {
       );
 
       that.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-      fetch("https://app-gke.openindoor.io/style/indoor/indoorLayers.json")
+      fetch("https://app-sandbox.openindoor.io/style/indoor/indoorLayers.json")
         .then(response => response.json())
         .then(response => {
           const indoorLayers = response;

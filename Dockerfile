@@ -11,7 +11,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install \
       --no-install-recommends \
       bash \
-      caddy \
       cron \
       curl \
       fcgiwrap \
@@ -42,18 +41,22 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN npm install -g yarn
+
 RUN mkdir -p /osm
-COPY ./requirements.txt /osm/
-RUN pip3 install -v -r /osm/requirements.txt
+COPY ./package.json /openindoor-app/package.json
+COPY ./.eslintrc.js /openindoor-app/.eslintrc.js
+COPY ./babel.config.js /openindoor-app/babel.config.js
+COPY ./tsconfig.json /openindoor-app/tsconfig.json
+COPY ./package.json /openindoor-app/package.json
+WORKDIR /openindoor-app
 
-COPY ./Caddyfile /etc/caddy/Caddyfile
+RUN yarn install
 
-WORKDIR /usr/bin
-COPY ./action.py /usr/bin/action
-COPY ./tic.sh /usr/bin/tic
-COPY ./osm-api.sh /osm/osm-api.sh
-RUN chmod +x /osm/osm-api.sh
+COPY ./src /openindoor-app/src
+COPY ./public /openindoor-app/public
+COPY ./tests /openindoor-app/tests
 
-CMD /osm/osm-api.sh
+CMD yarn serve --port 3000
 
-EXPOSE 80
+EXPOSE 3000
