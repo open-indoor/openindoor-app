@@ -219,7 +219,6 @@ export default class MapComponent extends Vue {
     });
 
     that.map.on("click", e => {
-      debugger;
       that.level = that.focusLevel;
       for (const feature of that.focus) {
         that.map.setFeatureState(feature, { select: false });
@@ -228,7 +227,7 @@ export default class MapComponent extends Vue {
       if (that.openIndoor && that.level != null) {
         that.map.setZoom(19);
         
-        that.openIndoor.setLevel(that.level);
+        that.openIndoor.setLevel(that.level.toString());
         
       }
       for (const feature of that.select) {
@@ -284,7 +283,7 @@ export default class MapComponent extends Vue {
 
             layerId: INDOOR_LAYER_ID,
             layers: indoorLayers,
-            level: that.level
+            level: that.level.toString()
           });
           that.map.addControl(that.openIndoor);
         })
