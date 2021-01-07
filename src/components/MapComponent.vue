@@ -250,7 +250,7 @@ export default class MapComponent extends Vue {
           that.map.addSource("pins", {
             type: "geojson",
             data:
-              "https://app-sandbox.openindoor.io/places/pins/thailand/pins.geojson"
+              "https://api-sandbox.openindoor.io/places/pins/thailand"
           });
           that.map.addLayer({
             id: "pins",
