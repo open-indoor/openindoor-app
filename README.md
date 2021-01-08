@@ -1,4 +1,4 @@
-# open-map
+# openindoor-app
 
 ## Project setup
 ```

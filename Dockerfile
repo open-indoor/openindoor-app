@@ -6,11 +6,15 @@ RUN apt-get -qq update \
     ca-certificates \
   && apt-get clean
 
+RUN echo "deb [trusted=yes] https://apt.fury.io/caddy/ /" \
+    | tee -a /etc/apt/sources.list.d/caddy-fury.list
+
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y update \
     && apt-get -y install \
       --no-install-recommends \
       bash \
+      caddy \
       cron \
       curl \
       fcgiwrap \
@@ -49,6 +53,7 @@ COPY ./.eslintrc.js /openindoor-app/.eslintrc.js
 COPY ./babel.config.js /openindoor-app/babel.config.js
 COPY ./tsconfig.json /openindoor-app/tsconfig.json
 COPY ./package.json /openindoor-app/package.json
+
 WORKDIR /openindoor-app
 
 RUN yarn install
@@ -57,6 +62,11 @@ COPY ./src /openindoor-app/src
 COPY ./public /openindoor-app/public
 COPY ./tests /openindoor-app/tests
 
-CMD yarn serve --port 3000
+RUN yarn build
+RUN mkdir -p /data/www
+RUN mv ./dist/* /data/www/
 
-EXPOSE 3000
+COPY ./Caddyfile /etc/caddy/Caddyfile
+
+# CMD yarn serve --port 3000
+CMD caddy run --watch --config /etc/caddy/Caddyfile

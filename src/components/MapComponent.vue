@@ -246,7 +246,7 @@ export default class MapComponent extends Vue {
 
     that.map.on("load", () => {
       that.map.loadImage(
-        "https://app-sandbox.openindoor.io/custom_marker.png",
+        "custom_marker.png",
         (error, image) => {
           if (error) throw error;
           that.map.addImage("custom-marker", image);
