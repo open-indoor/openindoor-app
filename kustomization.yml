@@ -6,4 +6,4 @@ images:
   - name: openindoor/openindoor-app
     newTag: latest
 resources:
-- openindoor-api.yaml
+- openindoor-app.yaml
