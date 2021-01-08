@@ -6,7 +6,7 @@ Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
-    path: "/map",
+    path: "/",
     name: "Map",
     component: Map
   },
