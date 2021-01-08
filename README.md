@@ -10,6 +10,11 @@ yarn install
 yarn serve
 ```
 
+#### Build and run With docker
+```
+docker-compose up --build
+```
+
 ### Compiles and minifies for production
 ```
 yarn build
