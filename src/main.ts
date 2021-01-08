@@ -2,7 +2,7 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
-import 'mapbox-gl/src/css/mapbox-gl.css'
+import './assets/map-box-gl-custom.css'
 import './custom-gl/src/styles/style.css'
 Vue.config.productionTip = false;
 

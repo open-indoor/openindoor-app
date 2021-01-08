@@ -11,7 +11,6 @@ import { Component, Vue } from "vue-property-decorator";
 @Component
 export default class Landing extends Vue {
   created(){
-    debugger;
     const params = this.$route.params
     this.$store.dispatch('updateMap',{
         center: [params.long, params.lat],

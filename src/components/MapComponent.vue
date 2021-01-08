@@ -2,8 +2,7 @@
   <div>
   <div class="map-wr" ref="map"></div>
   <div class="g-link">
-    <button @click="generateLink">Generate Link</button>
-    <input type="text"  v-if="link" :value="link"/>
+    <button @click="generateLink">{{btnText}}</button>
   </div>
   
   </div>
@@ -35,6 +34,7 @@ export default class MapComponent extends Vue {
   hovered: any;
   hoveredLevels: any;
   level = 0;
+  btnText = 'Copy Link to Clipboard';
 
   get mapState(): Map {
    const map = this.$store.state.map
@@ -47,6 +47,11 @@ export default class MapComponent extends Vue {
     
     this.link = `${window.location.protocol}//${window.location.host}/landing/${this.mapState.country}/${cen.lng}/${cen.lat}/${this.map.getZoom()}/${this.map.getBearing()}/${this.map.getPitch()}/${typeof this.openIndoor !== "undefined" ? this.openIndoor.level : "0"}/0  
       `
+    navigator.clipboard.writeText(this.link);  
+    this.btnText  = 'Link Copied!';
+    setTimeout(()=>{
+       this.btnText  = 'Copy Link to Clipboard';
+    },5000)
     
   }
 
