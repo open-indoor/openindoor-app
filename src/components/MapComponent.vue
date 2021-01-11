@@ -2,9 +2,22 @@
   <div>
   <div class="map-wr" ref="map"></div>
   <div class="g-link">
-    <button @click="generateLink">{{btnText}}</button>
+    <a-button type="dashed" @click="generateLink">
+      Generate Link
+    </a-button>
   </div>
-  
+  <a-modal v-model="linkVisible" title="Link Info" @ok="handleOk">
+    <a-row type="flex" justify="center"> 
+      <a-col span="20">
+         <a-alert :message="this.link" type="success" show-icon />
+      </a-col>
+      <a-col span="4" class="text-center">
+        <a-button type="primary" icon="copy" @click="copyLink" />
+      </a-col>
+    </a-row>
+   
+    
+  </a-modal>
   </div>
 </template>
 
@@ -17,6 +30,7 @@ import OpenIndoor from "../custom-gl/src/index";
 import store from "../store";
 import { State } from "vuex-class"
 import {MapState,Map} from '../types';
+import config from '../config';
 
 const OpenMap = namespace('OpenMap');
 
@@ -33,6 +47,7 @@ export default class MapComponent extends Vue {
   hoveredBuilding: any;
   hovered: any;
   hoveredLevels: any;
+  linkVisible = false;
   level = 0;
   btnText = 'Copy Link to Clipboard';
 
@@ -47,12 +62,16 @@ export default class MapComponent extends Vue {
     
     this.link = `${window.location.protocol}//${window.location.host}/landing/${this.mapState.country}/${cen.lng}/${cen.lat}/${this.map.getZoom()}/${this.map.getBearing()}/${this.map.getPitch()}/${typeof this.openIndoor !== "undefined" ? this.openIndoor.level : "0"}/0  
       `
-    navigator.clipboard.writeText(this.link);  
-    this.btnText  = 'Link Copied!';
-    setTimeout(()=>{
-       this.btnText  = 'Copy Link to Clipboard';
-    },5000)
+    this.linkVisible = true  
     
+  }
+
+  copyLink(){
+    navigator.clipboard.writeText(this.link);  
+  }
+
+  handleOk(){
+    this.linkVisible = false;
   }
 
   mounted() {
@@ -77,7 +96,7 @@ export default class MapComponent extends Vue {
   renderMap() {
     this.map = new mapboxgl.Map({
       container: this.$refs.map as HTMLElement,
-      style:'https://app-sandbox.openindoor.io/style/openindoorStyle_'+this.mapState.country+'.json',
+      style:`${config.APP_URL}/style/openindoorStyle_${this.mapState.country}.json`,
       center: this.mapState.center,
       pitch: this.mapState.pitch,
       maxPitch: this.mapState.maxPitch,
@@ -255,7 +274,7 @@ export default class MapComponent extends Vue {
           that.map.addSource("pins", {
             type: "geojson",
             data:
-              "https://api-sandbox.openindoor.io/places/pins/thailand"
+              `${config.API_URL}/places/pins/${this.mapState.country}`
           });
           that.map.addLayer({
             id: "pins",
@@ -274,7 +293,7 @@ export default class MapComponent extends Vue {
       );
 
       that.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-      fetch("https://app-sandbox.openindoor.io/style/indoor/indoorLayers.json")
+      fetch(`${config.APP_URL}/style/indoor/indoorLayers.json`)
         .then(response => response.json())
         .then(response => {
           const indoorLayers = response;
@@ -309,5 +328,9 @@ export default class MapComponent extends Vue {
   position: absolute;
   left: 16px;
   top: 16px;
+}
+
+.text-center{
+  text-align: center;
 }
 </style>
