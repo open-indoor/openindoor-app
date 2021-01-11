@@ -1,10 +1,10 @@
 :80 {
-
     root * /data/www
-    file_server browse
 
+    file_server
+    try_files *.png *.jpg *.ico {path}
+    try_files {path} {path}/ /index.html
     log {
         level DEBUG
     }
-
 }

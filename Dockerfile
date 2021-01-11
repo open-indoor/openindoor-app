@@ -63,10 +63,10 @@ COPY ./public /openindoor-app/public
 COPY ./tests /openindoor-app/tests
 
 RUN yarn build
-RUN mkdir -p /data/www
+RUN mkdir -p /data/www  
 RUN mv ./dist/* /data/www/
 
 COPY ./Caddyfile /etc/caddy/Caddyfile
 
 # CMD yarn serve --port 3000
-CMD caddy run --watch --config /etc/caddy/Caddyfile
+CMD (caddy fmt /etc/caddy/Caddyfile & caddy run --watch --config /etc/caddy/Caddyfile)
