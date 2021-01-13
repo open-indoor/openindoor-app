@@ -1,6 +1,6 @@
 <template>
   <div>
-  <div class="map-wr" ref="map"></div>
+  <div :style="{'height':fullHeight,'width':fullWidth}" class="map-wr" ref="map"></div>
   <div class="g-link">
     <a-button type="dashed" @click="generateLink">
       Generate Link
@@ -48,6 +48,8 @@ export default class MapComponent extends Vue {
   hovered: any;
   hoveredLevels: any;
   linkVisible = false;
+  fullHeight = window.innerHeight + 'px';
+  fullWidth = window.innerWidth + 'px';
   level = 0;
   btnText = 'Copy Link to Clipboard';
 
@@ -102,7 +104,8 @@ export default class MapComponent extends Vue {
       maxPitch: this.mapState.maxPitch,
       bearing: this.mapState.bearing,
       zoom: this.mapState.zoom,
-      attributionControl: false
+      attributionControl: false,
+      trackResize:true
     });
   }
 
@@ -110,8 +113,18 @@ export default class MapComponent extends Vue {
     this.map.addControl(new mapboxgl.FullscreenControl(), "bottom-right");
   }
 
+  resizeMap(){
+    this.fullHeight = window.innerHeight + 'px';
+      this.fullWidth = window.innerWidth + 'px';
+      setTimeout(()=>{
+        this.map.resize();
+      },0)
+  }
+
   bindEvent() {
     const that = this;
+    window.addEventListener('resize', this.resizeMap)
+    window.addEventListener("orientationchange", this.resizeMap)
     that.map.on("mousemove", e => {
       const features = that.map.queryRenderedFeatures(e.point, {
         // layers: ["building-part-extrusion"],
@@ -320,7 +333,6 @@ export default class MapComponent extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
 .map-wr {
-  height: 100vh;
   width: 100%;
 }
 
