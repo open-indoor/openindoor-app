@@ -8,10 +8,8 @@ let API_URL = "";
 // sandbox:    apX-sandbox.openindoor.io
 // local:      apX-local.openindoor.io
 if (process.env.NODE_ENV === "production") {
-  // API_URL = "https://api-sandbox.openindoor.io";
-  // APP_URL = "https://app-sandbox.openindoor.io";
-  API_URL = process.env.API_URL;
-  APP_URL = process.env.APP_URL;
+  API_URL = "https://api-sandbox.openindoor.io";
+  APP_URL = "https://app-sandbox.openindoor.io";
 } else if (process.env.NODE_ENV === "stage") {
   API_URL = "https://api-sandbox.openindoor.io";
   APP_URL = "https://app-sandbox.openindoor.io";
