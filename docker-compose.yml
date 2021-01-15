@@ -10,7 +10,7 @@ services:
     - ./src:/openindoor-app/src
     - ./Caddyfile:/etc/caddy/Caddyfile
     environment:
-      API_DOMAIN_NAME: ${API_DOMAIN_NAME}
-      API_URL: http://${API_DOMAIN_NAME}
+      API_URL: api-local.openindoor.io
+      APP_URL: app-local.openindoor.io
     ports:
     - 8080:80
