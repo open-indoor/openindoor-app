@@ -308,7 +308,7 @@ export default class MapComponent extends Vue {
       });
 
       that.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-      fetch(`${config.APP_URL}/style/indoor/indoorLayers.json`)
+      fetch(`/style/indoor/indoorLayers.json`)
         .then(response => response.json())
         .then(response => {
           const indoorLayers = response;
