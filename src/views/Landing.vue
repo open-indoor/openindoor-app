@@ -12,39 +12,16 @@ import { Component, Vue } from "vue-property-decorator";
 export default class Landing extends Vue {
   created(){
     const params = this.$route.params
+    this.$store.dispatch('updateMap',{
+        center: [params.long, params.lat],
+        pitch: params.pitch,
+        maxPitch: 60,
+        bearing: params.bearing,
+        zoom: params.zoom,
+        country:params.country,
+        building:params.building
+    })
 
-    // Manage old url format
-    const hash = this.$route.hash;
-    if (hash.match("^map=.*$")) {
-      let hashValues = hash.replace('#map=', '')
-      let hashArray = hashValues.split('/')
-      // 0: zoom
-      // 1: lon
-      // 2: lat
-      // 3: bearing
-      // 4: pitch
-      // 5: level
-      this.$store.dispatch('updateMap',{
-          center: [hashArray[1], hashArray[2]],
-          pitch: hashArray[4],
-          maxPitch: 60,
-          bearing: hashArray[3],
-          zoom: hashArray[0],
-          country: params.country,
-          building: 0
-      })        
-    } else {
-      // Manage new url format
-      this.$store.dispatch('updateMap',{
-          center: [params.long, params.lat],
-          pitch: params.pitch,
-          maxPitch: 60,
-          bearing: params.bearing,
-          zoom: params.zoom,
-          country:params.country,
-          building:params.building
-      })
-    }
     this.$router.push({path: '/map'})
   }
 }
