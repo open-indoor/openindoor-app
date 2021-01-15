@@ -70,3 +70,5 @@ COPY ./Caddyfile /etc/caddy/Caddyfile
 
 # CMD yarn serve --port 3000
 CMD (caddy fmt /etc/caddy/Caddyfile & caddy run --watch --config /etc/caddy/Caddyfile)
+
+EXPOSE 80
