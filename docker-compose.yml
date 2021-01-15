@@ -5,14 +5,14 @@ services:
     build:
       context: .
     image: openindoor/openindoor-app
-    # command: yarn serve --port 80
-    command: yarn lint
+    command: yarn serve --port 80
+    # command: yarn lint
 
     volumes:
     - ./src:/openindoor-app/src
     - ./Caddyfile:/etc/caddy/Caddyfile
     environment:
-      API_URL: api-local.openindoor.io
-      APP_URL: app-local.openindoor.io
+      API_URL: api-sandbox.openindoor.io
+      APP_URL: app-sandbox.openindoor.io
     ports:
     - 8080:80
