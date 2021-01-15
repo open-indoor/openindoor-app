@@ -12,7 +12,6 @@ import { Component, Vue } from "vue-property-decorator";
 export default class OldUrl extends Vue {
   created(){
     const params = this.$route.params
-
     // Manage old url format
     const hash = this.$route.hash;
     // if (hash.match("^map=.*$")) {
