@@ -11,13 +11,13 @@ const routes: Array<RouteConfig> = [
     name: "Map",
     component: Map
   },
-  { 
+  {
     //landing/thailand/100.55532/13.98083/17/51/60/0/0
     path: "/landing/:country/:long/:lat/:zoom/:bearing/:pitch/:floor/:building",
     name: "Landing",
     component: Landing
   },
-  { 
+  {
     // oldurl/malaysia#map=18/103.905242/1.301493/0/60/0
     path: "/oldurl/:country",
     name: "OldUrl",

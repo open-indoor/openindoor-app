@@ -6,6 +6,8 @@ services:
       context: .
     image: openindoor/openindoor-app
     # command: yarn serve --port 80
+    command: yarn lint
+
     volumes:
     - ./src:/openindoor-app/src
     - ./Caddyfile:/etc/caddy/Caddyfile

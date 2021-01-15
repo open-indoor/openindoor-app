@@ -1,6 +1,6 @@
 <template>
   <div>
-   <MapComponent />
+    <MapComponent />
   </div>
 </template>
 <script lang="ts">
@@ -12,7 +12,5 @@ import MapComponent from "@/components/MapComponent.vue"; // @ is an alias to /s
     MapComponent
   }
 })
-export default class Map extends Vue {
-  
-}
+export default class Map extends Vue {}
 </script>

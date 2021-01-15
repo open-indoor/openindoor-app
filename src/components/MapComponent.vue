@@ -1,44 +1,46 @@
 <template>
   <div>
-  <div :style="{'height':fullHeight,'width':fullWidth}" class="map-wr" ref="map"></div>
-  <div class="g-link">
-    <a-button type="dashed" @click="generateLink">
-      Generate Link
-    </a-button>
-  </div>
-  <a-modal v-model="linkVisible" title="Link Info" @ok="handleOk">
-    <a-row type="flex" justify="center"> 
-      <a-col span="20">
-         <a-alert :message="this.link" type="success" show-icon />
-      </a-col>
-      <a-col span="4" class="text-center">
-        <a-button type="primary" icon="copy" @click="copyLink" />
-      </a-col>
-    </a-row>
-   
-    
-  </a-modal>
+    <div
+      :style="{ height: fullHeight, width: fullWidth }"
+      class="map-wr"
+      ref="map"
+    ></div>
+    <div class="g-link">
+      <a-button type="dashed" @click="generateLink">
+        Generate Link
+      </a-button>
+    </div>
+    <a-modal v-model="linkVisible" title="Link Info" @ok="handleOk">
+      <a-row type="flex" justify="center">
+        <a-col span="20">
+          <a-alert :message="this.link" type="success" show-icon />
+        </a-col>
+        <a-col span="4" class="text-center">
+          <a-button type="primary" icon="copy" @click="copyLink" />
+        </a-col>
+      </a-row>
+    </a-modal>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { namespace } from "vuex-class";
 
 import mapboxgl from "mapbox-gl";
 import OpenIndoor from "../custom-gl/src/index";
 import store from "../store";
-import { State } from "vuex-class"
-import {MapState,Map} from '../types';
-import config from '../config';
+import { State } from "vuex-class";
+import { MapState, Map } from "../types";
+import config from "../config";
 
-const OpenMap = namespace('OpenMap');
+const OpenMap = namespace("OpenMap");
 
 @Component
 export default class MapComponent extends Vue {
   @Prop() private!: string;
-  link = '';
-  map:any = {};
+  link = "";
+  map: any = {};
   focus: any = [];
   zoom: any = 17;
   openIndoor: any;
@@ -48,31 +50,36 @@ export default class MapComponent extends Vue {
   hovered: any;
   hoveredLevels: any;
   linkVisible = false;
-  fullHeight = window.innerHeight + 'px';
-  fullWidth = window.innerWidth + 'px';
+  fullHeight = window.innerHeight + "px";
+  fullWidth = window.innerWidth + "px";
   level = 0;
-  btnText = 'Copy Link to Clipboard';
+  btnText = "Copy Link to Clipboard";
 
   get mapState(): Map {
-   const map = this.$store.state.map
-   return map;
+    const map = this.$store.state.map;
+    return map;
   }
 
-  generateLink(){
+  generateLink() {
     //landing/thailand/100.55532/13.98083/17/51/60/0/0
-    const  cen = this.map.getCenter();
-    
-    this.link = `${window.location.protocol}//${window.location.host}/landing/${this.mapState.country}/${cen.lng}/${cen.lat}/${this.map.getZoom()}/${this.map.getBearing()}/${this.map.getPitch()}/${typeof this.openIndoor !== "undefined" ? this.openIndoor.level : "0"}/0  
-      `
-    this.linkVisible = true  
-    
+    const cen = this.map.getCenter();
+
+    this.link = `${window.location.protocol}//${window.location.host}/landing/${
+      this.mapState.country
+    }/${cen.lng}/${
+      cen.lat
+    }/${this.map.getZoom()}/${this.map.getBearing()}/${this.map.getPitch()}/${
+      typeof this.openIndoor !== "undefined" ? this.openIndoor.level : "0"
+    }/0  
+      `;
+    this.linkVisible = true;
   }
 
-  copyLink(){
-    navigator.clipboard.writeText(this.link);  
+  copyLink() {
+    navigator.clipboard.writeText(this.link);
   }
 
-  handleOk(){
+  handleOk() {
     this.linkVisible = false;
   }
 
@@ -90,22 +97,22 @@ export default class MapComponent extends Vue {
         deep: true //add this if u need to watch object properties change etc.
     }
   );*/
-  this.renderMap();
-      this.addControl();
-      this.bindEvent();
+    this.renderMap();
+    this.addControl();
+    this.bindEvent();
   }
 
   renderMap() {
     this.map = new mapboxgl.Map({
       container: this.$refs.map as HTMLElement,
-      style:`${config.APP_URL}/style/openindoorStyle_${this.mapState.country}.json`,
+      style: `${config.APP_URL}/style/openindoorStyle_${this.mapState.country}.json`,
       center: this.mapState.center,
       pitch: this.mapState.pitch,
       maxPitch: this.mapState.maxPitch,
       bearing: this.mapState.bearing,
       zoom: this.mapState.zoom,
       attributionControl: false,
-      trackResize:true
+      trackResize: true
     });
   }
 
@@ -113,18 +120,18 @@ export default class MapComponent extends Vue {
     this.map.addControl(new mapboxgl.FullscreenControl(), "bottom-right");
   }
 
-  resizeMap(){
-    this.fullHeight = window.innerHeight + 'px';
-      this.fullWidth = window.innerWidth + 'px';
-      setTimeout(()=>{
-        this.map.resize();
-      },0)
+  resizeMap() {
+    this.fullHeight = window.innerHeight + "px";
+    this.fullWidth = window.innerWidth + "px";
+    setTimeout(() => {
+      this.map.resize();
+    }, 0);
   }
 
   bindEvent() {
     const that = this;
-    window.addEventListener('resize', this.resizeMap)
-    window.addEventListener("orientationchange", this.resizeMap)
+    window.addEventListener("resize", this.resizeMap);
+    window.addEventListener("orientationchange", this.resizeMap);
     that.map.on("mousemove", e => {
       const features = that.map.queryRenderedFeatures(e.point, {
         // layers: ["building-part-extrusion"],
@@ -263,9 +270,8 @@ export default class MapComponent extends Vue {
       that.select = that.focus;
       if (that.openIndoor && that.level != null) {
         that.map.setZoom(19);
-        
+
         that.openIndoor.setLevel(that.level.toString());
-        
       }
       for (const feature of that.select) {
         that.map.setFeatureState(feature, { select: true });
@@ -277,33 +283,29 @@ export default class MapComponent extends Vue {
     });
 
     that.map.on("load", () => {
-      that.map.loadImage(
-        "custom_marker.png",
-        (error, image) => {
-          if (error) throw error;
-          that.map.addImage("custom-marker", image);
-          // Add a GeoJSON source with 2 points
+      that.map.loadImage("custom_marker.png", (error, image) => {
+        if (error) throw error;
+        that.map.addImage("custom-marker", image);
+        // Add a GeoJSON source with 2 points
 
-          that.map.addSource("pins", {
-            type: "geojson",
-            data:
-              `${config.API_URL}/places/pins/${this.mapState.country}`
-          });
-          that.map.addLayer({
-            id: "pins",
-            type: "symbol",
-            source: "pins",
-            layout: {
-              "icon-image": "custom-marker",
-              // get the title name from the source's "title" property
-              "text-field": ["get", "title"],
-              "text-font": ["Open Sans Regular"],
-              "text-offset": [0, 1.25],
-              "text-anchor": "top"
-            }
-          });
-        }
-      );
+        that.map.addSource("pins", {
+          type: "geojson",
+          data: `${config.API_URL}/places/pins/${this.mapState.country}`
+        });
+        that.map.addLayer({
+          id: "pins",
+          type: "symbol",
+          source: "pins",
+          layout: {
+            "icon-image": "custom-marker",
+            // get the title name from the source's "title" property
+            "text-field": ["get", "title"],
+            "text-font": ["Open Sans Regular"],
+            "text-offset": [0, 1.25],
+            "text-anchor": "top"
+          }
+        });
+      });
 
       that.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
       fetch(`${config.APP_URL}/style/indoor/indoorLayers.json`)
@@ -336,13 +338,13 @@ export default class MapComponent extends Vue {
   width: 100%;
 }
 
-.g-link{
+.g-link {
   position: absolute;
   left: 16px;
   top: 16px;
 }
 
-.text-center{
+.text-center {
   text-align: center;
 }
 </style>
