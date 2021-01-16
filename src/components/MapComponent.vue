@@ -105,7 +105,7 @@ export default class MapComponent extends Vue {
   renderMap() {
     this.map = new mapboxgl.Map({
       container: this.$refs.map as HTMLElement,
-      style: `/style/openindoorStyle_${this.mapState.country}.json`,
+      style: `${config.APP_URL}/style/openindoorStyle_${this.mapState.country}.json`,
       center: this.mapState.center,
       pitch: this.mapState.pitch,
       maxPitch: this.mapState.maxPitch,

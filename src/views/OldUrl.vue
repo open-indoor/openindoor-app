@@ -12,15 +12,9 @@ import { Component, Vue } from "vue-property-decorator";
 export default class OldUrl extends Vue {
   created() {
     const params = this.$route.params;
-    console.log("this.$route.params:" + this.$route.params);
-    // Manage old url format
     const hash = this.$route.hash;
-    console.log("this.$route.hash:" + this.$route.hash);
-    // if (hash.match("^map=.*$")) {
     const hashValues = hash.replace("#map=", "");
-    console.log("hashValues:" + hashValues);
     const hashArray = hashValues.split("/");
-    console.log("hashArray:" + hashArray);
     // 0: zoom
     // 1: lon
     // 2: lat
@@ -36,7 +30,6 @@ export default class OldUrl extends Vue {
       country: params.country,
       building: 0
     });
-    // }
     this.$router.push({ path: "/map" });
   }
 }
