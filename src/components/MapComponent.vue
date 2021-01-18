@@ -76,7 +76,13 @@ export default class MapComponent extends Vue {
   }
 
   copyLink() {
-    navigator.clipboard.writeText(this.link);
+    // Dynamically create / destroy input element for copying text
+    const inputElement = document.createElement("input");
+    inputElement.value = this.link.trim();
+    document.body.appendChild(inputElement);
+    inputElement.select();
+    document.execCommand("copy");
+    document.body.removeChild(inputElement);
   }
 
   handleOk() {

@@ -7,6 +7,10 @@ Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
+    path: "/",
+    redirect: "/map"
+  },
+  {
     path: "/map",
     name: "Map",
     component: Map

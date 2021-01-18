@@ -11,8 +11,8 @@ services:
     volumes:
     - ./src:/openindoor-app/src
     - ./Caddyfile:/etc/caddy/Caddyfile
-    environment:
-      API_URL: api-sandbox.openindoor.io
-      APP_URL: app-sandbox.openindoor.io
+    environment:      
+      API_URL: http://api-sandbox.openindoor.io
+      APP_URL: http://app-sandbox.openindoor.io
     ports:
     - 8080:80
