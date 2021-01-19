@@ -41,6 +41,11 @@ spec:
             configMapKeyRef:
               name: openindoor-cm
               key: appDomainName
+        - name: ANALYTICS
+          valueFrom:
+            configMapKeyRef:
+              name: openindoor-cm
+              key: analytics
         image: openindoor/openindoor-app:0.0.0
         name: openindoor-app
         ports:

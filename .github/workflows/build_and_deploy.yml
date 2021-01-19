@@ -2,7 +2,7 @@ name: Build new image and Deploy it to Kubernetes
 
 on:
   push:
-    tags:
+    branch:
     - '*'
 
 env:
