@@ -46,6 +46,12 @@ spec:
             configMapKeyRef:
               name: openindoor-cm
               key: analytics
+        - name: GOOGLE_ANALYTICS_ID
+          valueFrom:
+            configMapKeyRef:
+              name: openindoor-cm
+              key: googleAnalyticsId
+              
         image: openindoor/openindoor-app:0.0.0
         name: openindoor-app
         ports:

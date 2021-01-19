@@ -2,6 +2,7 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
+import VueAnalytics from "vue-analytics";
 import "./assets/styles/main.scss";
 import "./assets/map-box-gl-custom.css";
 import "./custom-gl/src/styles/style.css";
@@ -15,6 +16,10 @@ Vue.use(Button);
 Vue.use(Alert);
 Vue.use(Row);
 Vue.use(Col);
+Vue.use(VueAnalytics, {
+  id: 'GOOGLE_ANALYTICS_ID',
+  router
+};
 new Vue({
   comments: true,
   router,
