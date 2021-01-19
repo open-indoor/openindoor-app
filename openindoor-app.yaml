@@ -36,6 +36,11 @@ spec:
             configMapKeyRef:
               name: openindoor-cm
               key: apiDomainName
+        - name: APP_DOMAIN_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: openindoor-cm
+              key: appDomainName
         image: openindoor/openindoor-app:0.0.0
         name: openindoor-app
         ports:
