@@ -4,7 +4,7 @@ for f in `find /data/www -type f`; do
   sed -i 's/\(api\.openindoor\.io\)/'$API_DOMAIN_NAME'/g' $f
   sed -i 's/\(app\.openindoor\.io\)/'$APP_DOMAIN_NAME'/g' $f
   ### inject analytics code ###
-  sed -i 's/GOOGLE_ANALYTICS_ID/'$GOOGLE_ANALYTICS_ID'/g' $f  
+  sed -i 's/GOOGLE_ANALYTICS_ID/'$GOOGLE_ANALYTICS_ID'/g' $f
 done
 
 

@@ -19,7 +19,7 @@ Vue.use(Col);
 Vue.use(VueAnalytics, {
   id: 'GOOGLE_ANALYTICS_ID',
   router
-};
+});
 new Vue({
   comments: true,
   router,
