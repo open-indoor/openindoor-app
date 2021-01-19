@@ -69,6 +69,9 @@ RUN mv ./dist/* /data/www/
 COPY ./Caddyfile /etc/caddy/Caddyfile
 
 # CMD yarn serve --port 3000
-CMD (caddy fmt /etc/caddy/Caddyfile & caddy run --watch --config /etc/caddy/Caddyfile)
+COPY ./openindoor-app.sh /openindoor-app/openindoor-app
+RUN chmod +x /openindoor-app/openindoor-app
+# CMD (caddy fmt /etc/caddy/Caddyfile & caddy run --watch --config /etc/caddy/Caddyfile)
+CMD /openindoor-app/openindoor-app
 
 EXPOSE 80
