@@ -16,6 +16,7 @@ Vue.use(Alert);
 Vue.use(Row);
 Vue.use(Col);
 new Vue({
+  comments: true,
   router,
   store,
   render: h => h(App)
