@@ -144,7 +144,7 @@ export default class MapComponent extends Vue {
       });
 
       //(features);
-
+      //return all feature
       const allFeatures = that.map.queryRenderedFeatures();
 
       for (const feature of that.focus) {
@@ -269,13 +269,29 @@ export default class MapComponent extends Vue {
     });
 
     that.map.on("click", e => {
+      const features = that.map.queryRenderedFeatures(e.point, {
+        // layers: ["building-part-extrusion"],
+      });
+
       that.level = that.focusLevel;
       for (const feature of that.focus) {
         that.map.setFeatureState(feature, { select: false });
       }
       that.select = that.focus;
       if (that.openIndoor && that.level != null) {
-        that.map.setZoom(19);
+        // that.map.setZoom(19);
+        let coordinates = features[0].geometry.coordinates;
+        //NOTE  handling two different type of coordinates for line and polygon type feature
+        if (coordinates[0].length == 2) {
+          coordinates = coordinates[0];
+        } else {
+          coordinates = coordinates[0][0];
+        }
+
+        that.map.flyTo({
+          center: coordinates,
+          zoom: 19
+        });
 
         that.openIndoor.setLevel(that.level.toString());
       }
@@ -314,11 +330,12 @@ export default class MapComponent extends Vue {
       });
 
       that.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-      fetch(`/style/indoor/indoorLayers.json`)
+      fetch(`${config.APP_URL}/style/indoor/indoorLayers.json`)
         .then(response => response.json())
         .then(response => {
+          // debugger;
           const indoorLayers = response;
-          //console.log("indoorLayers:", indoorLayers);
+          console.log("indoorLayers:", indoorLayers);
 
           const INDOOR_SOURCE_ID = "indoor";
           const INDOOR_LAYER_ID = "osm-indoor";
