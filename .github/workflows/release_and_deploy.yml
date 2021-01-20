@@ -2,8 +2,8 @@ name: Build release image and Deploy it to Kubernetes
 
 on:
   push:
-    tags:
-    - '*'
+    branches:
+      - 'refs/tags/*'
 
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
