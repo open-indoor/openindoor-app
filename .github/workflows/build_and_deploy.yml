@@ -3,7 +3,8 @@ name: Build new image and Deploy it to Kubernetes
 on:
   push:
     branch:
-    - '*'
+    - main
+    - dev
 
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
