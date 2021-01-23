@@ -436,7 +436,7 @@ export default class MapComponent extends Vue {
             alert("ex when trying to parse json = " + ex);
           }
         };
-      })(f);
+      })();
       reader.readAsText(f);
     }
   }
