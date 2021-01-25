@@ -102,7 +102,7 @@ export default class MapComponent extends Vue {
   level = 0;
   btnText = "Copy Link to Clipboard";
   form: any = {
-    url: "https://api-sandbox.openindoor.io/tileserver/data/thailand.json"
+    url: ""
   };
   public rules: any = {
     url: [
