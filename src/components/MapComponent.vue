@@ -11,7 +11,7 @@
       </a-button>
 
       &nbsp;&nbsp;&nbsp;
-      <input
+      <!-- <input
         type="file"
         ref="file"
         style="display:none"
@@ -20,8 +20,39 @@
       />
       <a-button type="dashed" @click="$refs.file.click()">
         Browse
+      </a-button> -->
+
+      <a-button type="dashed" @click="showModal">
+        Browse
       </a-button>
     </div>
+
+    <a-modal
+      title="Tile URL"
+      :visible="tileLinkVisible"
+      @ok="onSubmit"
+      @cancel="handleCancel"
+      :confirm-loading="tileUrlLoading"
+    >
+      <a-form-model
+        ref="tileLinkForm"
+        :model="form"
+        layout="vertical"
+        :rules="rules"
+        @submit="onSubmit($event)"
+      >
+        <a-form-model-item ref="url" label="Url" prop="url">
+          <a-input v-model="form.url" placeholder="Enter Organization Name" />
+        </a-form-model-item>
+
+        <small>
+          <strong>Note : </strong>
+          Refer urls
+          <a href="https://api-sandbox.openindoor.io/tileserver/">Click here</a>
+        </small>
+      </a-form-model>
+    </a-modal>
+
     <a-modal v-model="linkVisible" title="Link Info" @ok="handleOk">
       <a-row type="flex" justify="center">
         <a-col span="20">
@@ -45,10 +76,10 @@ import store from "../store";
 import { State } from "vuex-class";
 import { MapState, Map } from "../types";
 import config from "../config";
-import { styleJson } from "./IndoorStyle";
+import { FormModel } from "ant-design-vue";
 
-const OpenMap = namespace("OpenMap");
-const INDOOR_CUSTOM_BUILDING_LAYER_ID = "custom-building";
+// const OpenMap = namespace("OpenMap");
+// const INDOOR_CUSTOM_BUILDING_LAYER_ID = "custom-building";
 
 @Component
 export default class MapComponent extends Vue {
@@ -64,10 +95,35 @@ export default class MapComponent extends Vue {
   hovered: any;
   hoveredLevels: any;
   linkVisible = false;
+  tileLinkVisible = false;
+  tileUrlLoading = false;
   fullHeight = window.innerHeight + "px";
   fullWidth = window.innerWidth + "px";
   level = 0;
   btnText = "Copy Link to Clipboard";
+  form: any = {
+    url: "https://api-sandbox.openindoor.io/tileserver/data/thailand.json"
+  };
+  public rules: any = {
+    url: [
+      {
+        required: true,
+        message: "Url is required",
+        trigger: "blur"
+      },
+      {
+        min: 2,
+        max: 255,
+        message: "Url length should be 2 to 2048",
+        trigger: "blur"
+      },
+      {
+        pattern: /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi,
+        message: "Enter json url",
+        trigger: "change"
+      }
+    ]
+  };
 
   get mapState(): Map {
     const map = this.$store.state.map;
@@ -135,6 +191,46 @@ export default class MapComponent extends Vue {
       attributionControl: false,
       trackResize: true
     });
+  }
+
+  showModal() {
+    this.tileLinkVisible = true;
+  }
+  handleCancel() {
+    this.tileLinkVisible = false;
+    this.form.url = "";
+  }
+
+  renderMapFromUrl(url) {
+    fetch(
+      `${config.APP_URL}/style/openindoorStyle_${this.mapState.country}.json`
+    )
+      .then(response => response.json())
+      .then(styleJsonResponse => {
+        this.tileUrlLoading = false;
+        this.tileLinkVisible = false;
+        this.form.url = "";
+        styleJsonResponse.sources.building.url = url;
+        styleJsonResponse.sources.shape.url = url;
+        styleJsonResponse.sources.indoor.url = url;
+
+        this.map = new mapboxgl.Map({
+          container: this.$refs.map as HTMLElement,
+          // style: `mapbox://styles/mapbox/streets-v11`,
+          // style: `${config.APP_URL}/style/openindoorStyle_${this.mapState.country}.json`,
+          style: styleJsonResponse, // NOTE test style by updating local json file url
+          center: this.mapState.center,
+          pitch: this.mapState.pitch,
+          maxPitch: this.mapState.maxPitch,
+          bearing: this.mapState.bearing,
+          zoom: this.mapState.zoom,
+          attributionControl: false,
+          trackResize: true
+        });
+
+        this.bindEvent();
+        // this.tileLinkVisible = false;
+      });
   }
 
   addControl() {
@@ -320,6 +416,23 @@ export default class MapComponent extends Vue {
     });
 
     that.map.on("load", () => {
+      // TODO 1. change source
+      // NOTE get center of loaded map from json and move to that location
+      console.log("that.map");
+      console.log(that.map);
+      fetch(that.map.style.getSource("building").url)
+        .then(response => response.json())
+        .then(response => {
+          // fly to center of loaded json building location
+          // alert("fly to " + JSON.stringify(response.center));
+          that.map.flyTo({
+            center: response.center,
+
+            // this animation is considered essential with respect to prefers-reduced-motion
+            essential: true
+          });
+        });
+
       that.map.loadImage("custom_marker.png", (error, image) => {
         if (error) throw error;
         that.map.addImage("custom-marker", image);
@@ -369,76 +482,121 @@ export default class MapComponent extends Vue {
   }
 
   handleFile(evt) {
-    console.log(evt.target.files);
-    const files = evt.target.files;
-    const that = this;
+    // remove previous map instance
+    // this.map.remove();
+    // this.renderMapFromUrl(
+    //   "https://api-sandbox.openindoor.io/tileserver/data/thailand.json"
+    // );
 
-    // files is a FileList of File objects. List some properties.
-    for (let i = 0, f; (f = files[i]); i++) {
-      const reader = new FileReader();
+    // this.$refs.tileLinkForm.submit();
 
-      // Closure to capture the file information.
-      reader.onload = (() => {
-        return function(e) {
-          try {
-            const parsedGeoJson = JSON.parse(e.target.result);
+    return;
 
-            console.log(parsedGeoJson);
-            console.log(typeof parsedGeoJson);
-            // plot above feature on map
+    // console.log(evt.target.files);
+    // const files = evt.target.files;
+    // const that = this;
 
-            // NOTE in data we can either use URL or JSON objects that can be read from file
-            // NOTE =============== Load map from url ===============
+    // // files is a FileList of File objects. List some properties.
+    // for (let i = 0, f; (f = files[i]); i++) {
+    //   const reader = new FileReader();
 
-            //NOTE If already same layere exist then remove previous one
-            const mapLayer = that.map.getLayer(INDOOR_CUSTOM_BUILDING_LAYER_ID);
-            if (typeof mapLayer !== "undefined") {
-              // Remove map layer & source.
-              that.map.removeLayer(INDOOR_CUSTOM_BUILDING_LAYER_ID);
-              // .removeSource(INDOOR_CUSTOM_BUILDING_LAYER_ID);
-            }
+    //   // Closure to capture the file information.
+    //   reader.onload = (() => {
+    //     return function(e) {
+    //       try {
+    //         const parsedGeoJson = JSON.parse(e.target.result);
 
-            // NOTE create new source and layer so it will show only one geojson data
-            that.map.addLayer({
-              id: INDOOR_CUSTOM_BUILDING_LAYER_ID,
-              type: "fill",
-              source: {
-                type: "geojson",
-                // data: `http://localhost/openindoor-app/src/assets/ARCADE.geojson` // NOTE parse with url
-                data: parsedGeoJson // NOTE parse with file
-              },
-              paint: {
-                "fill-color": "#088",
-                "fill-opacity": 0.8
-              }
-            });
+    //         console.log(parsedGeoJson);
+    //         console.log(typeof parsedGeoJson);
+    //         // plot above feature on map
 
-            // FIXME work for polygon only
-            // console.log(parsedGeoJson.features[0].geometry.coordinates[0]);
-            const coordinates =
-              parsedGeoJson.features[0].geometry.coordinates[0].length > 0
-                ? parsedGeoJson.features[0].geometry.coordinates[0][0]
-                : null;
-            // console.log(parsedGeoJson.features.geometry.coordinates[0]);
-            console.log(coordinates);
+    //         // NOTE in data we can either use URL or JSON objects that can be read from file
+    //         // NOTE =============== Load map from url ===============
 
-            // TODO calculate lat long from aboce feature and flyTo that location
-            that.map.flyTo({
-              // center: [2.2487, 48.77583],
-              center: [coordinates[0], coordinates[1]],
-              essential: true
-            });
-            // that.$refs.file.reset();
-            //NOTE  =============== End Load map ===============
-          } catch (ex) {
-            // Show error in alert if fail to parse geojson file
-            console.log(ex);
-            alert("ex when trying to parse json = " + ex);
-          }
-        };
-      })();
-      reader.readAsText(f);
-    }
+    //         //NOTE If already same layere exist then remove previous one
+    //         const mapLayer = that.map.getLayer(INDOOR_CUSTOM_BUILDING_LAYER_ID);
+    //         if (typeof mapLayer !== "undefined") {
+    //           // Remove map layer & source.
+    //           that.map.removeLayer(INDOOR_CUSTOM_BUILDING_LAYER_ID);
+    //           // .removeSource(INDOOR_CUSTOM_BUILDING_LAYER_ID);
+    //         }
+
+    //         // NOTE create new source and layer so it will show only one geojson data
+    //         that.map.addLayer({
+    //           id: INDOOR_CUSTOM_BUILDING_LAYER_ID,
+    //           type: "fill",
+    //           source: {
+    //             type: "geojson",
+    //             data:
+    //               "https://api-sandbox.openindoor.io/tileserver/data/france.json"
+    //             // data: `http://localhost/openindoor-app/src/assets/ARCADE.geojson` // NOTE parse with url
+    //             // data: parsedGeoJson // NOTE parse with file
+    //           },
+    //           paint: {
+    //             "fill-color": "#088",
+    //             "fill-opacity": 0.8
+    //           }
+    //         });
+
+    //         // FIXME work for polygon only
+    //         // console.log(parsedGeoJson.features[0].geometry.coordinates[0]);
+    //         const coordinates =
+    //           parsedGeoJson.features[0].geometry.coordinates[0].length > 0
+    //             ? parsedGeoJson.features[0].geometry.coordinates[0][0]
+    //             : null;
+    //         // console.log(parsedGeoJson.features.geometry.coordinates[0]);
+    //         console.log(coordinates);
+
+    //         // TODO calculate lat long from aboce feature and flyTo that location
+    //         that.map.flyTo({
+    //           // center: [2.2487, 48.77583],
+    //           center: [coordinates[0], coordinates[1]],
+    //           essential: true
+    //         });
+    //         // that.$refs.file.reset();
+    //         //NOTE  =============== End Load map ===============
+    //       } catch (ex) {
+    //         // Show error in alert if fail to parse geojson file
+    //         console.log(ex);
+    //         alert("ex when trying to parse json = " + ex);
+    //       }
+    //     };
+    //   })();
+    //   reader.readAsText(f);
+    // }
+  }
+
+  public onSubmit(e) {
+    this.tileUrlLoading = true;
+    e.preventDefault();
+
+    // create
+    (this.$refs.tileLinkForm as FormModel).validate((parentValid, fields) => {
+      // console.log(fields);
+      if (parentValid) {
+        this.map.remove();
+        //
+        console.log(this.form.url);
+        this.renderMapFromUrl(this.form.url);
+        // this.renderMapFromUrl(
+        //   "https://api-sandbox.openindoor.io/tileserver/data/thailand.json"
+        // );
+      } else {
+        this.tileUrlLoading = false;
+        console.log("error submit!!");
+        return false;
+      }
+    });
+
+    // if ((this.$refs.signupForm as FormModel).validate()) {
+    //   // alert("submit!");
+    //   // youo have the data here
+    //   console.log(this.form);
+    // } else {
+    //   console.log("error submit!!");
+    //   return false;
+    // }
+    // });
   }
 }
 </script>
