@@ -60,15 +60,34 @@ export default class MapComponent extends Vue {
     return map;
   }
 
+  trucateDecimal(number, decimalPlaces) {
+    const decimalValue = number.toString().split(".");
+
+    if (decimalValue.length > 1) {
+      const trucateIndex = decimalValue[1].length - decimalPlaces;
+      const trucatedDecimalValue =
+        decimalValue[1].length > decimalPlaces
+          ? decimalValue[1].slice(0, "-" + trucateIndex)
+          : decimalValue[1];
+
+      return decimalValue[0] + "." + trucatedDecimalValue;
+    } else {
+      // if integer value then return number as it is.
+      return number;
+    }
+  }
+
   generateLink() {
     //landing/thailand/100.55532/13.98083/17/51/60/0/0
     const cen = this.map.getCenter();
 
+    const longitude = this.trucateDecimal(cen.lng, 6);
+    const latitude = this.trucateDecimal(cen.lat, 6);
+    const zoomLevel = this.trucateDecimal(this.map.getZoom(), 4);
+
     this.link = `${window.location.protocol}//${window.location.host}/landing/${
       this.mapState.country
-    }/${cen.lng}/${
-      cen.lat
-    }/${this.map.getZoom()}/${this.map.getBearing()}/${this.map.getPitch()}/${
+    }/${longitude}/${latitude}/${zoomLevel}/${this.map.getBearing()}/${this.map.getPitch()}/${
       typeof this.openIndoor !== "undefined" ? this.openIndoor.level : "0"
     }/0  
       `;
@@ -294,6 +313,11 @@ export default class MapComponent extends Vue {
         });
 
         that.openIndoor.setLevel(that.level.toString());
+
+        const mapState = Object.assign({}, that.mapState, {
+          floor: that.level.toString()
+        });
+        that.$store.dispatch("updateMap", mapState);
       }
       for (const feature of that.select) {
         that.map.setFeatureState(feature, { select: true });
@@ -302,6 +326,27 @@ export default class MapComponent extends Vue {
 
     that.map.on("moveend", function(event) {
       //spreserveDataPoints(false);
+    });
+
+    that.map.on("wheel", function(event) {
+      if (that.map.getZoom() < 19) {
+        // dispatch
+        const mapState = Object.assign({}, that.mapState, { floor: "" });
+        that.$store.dispatch("updateMap", mapState);
+        // that.$store.dispatch("updateMap", {
+        //   center:
+        //     params.long && params.lat
+        //       ? [params.long, params.lat]
+        //       : [-1.7030681187784467, 48.11947479723537],
+        //   pitch: params.pitch ? params.pitch : 60,
+        //   maxPitch: 60,
+        //   bearing: params.bearing ? params.bearing : 50,
+        //   zoom: params.zoom ? params.zoom : 70,
+        //   country: params.country ? params.country : "france",
+        //   building: params.building ? params.building : 0,
+        //   floor: params.floor ? params.floor : 0
+        // });
+      }
     });
 
     that.map.on("load", () => {
@@ -347,7 +392,13 @@ export default class MapComponent extends Vue {
             layers: indoorLayers,
             level: that.level.toString()
           });
+          // add level control on map
           that.map.addControl(that.openIndoor);
+
+          // select floor if it is set in store
+          if (that.mapState.floor !== "") {
+            that.openIndoor.setLevel(that.mapState.floor);
+          }
         })
         .catch(error => alert("Erreur : " + error));
     });

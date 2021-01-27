@@ -28,7 +28,8 @@ export default class OldUrl extends Vue {
       bearing: hashArray[3],
       zoom: hashArray[0],
       country: params.country,
-      building: 0
+      building: 0,
+      floor: 0
     });
     this.$router.push({ path: "/map" });
   }

@@ -6,6 +6,7 @@ export interface Map {
   zoom: number;
   country: string;
   building: string;
+  floor: string;
 }
 
 export interface MapState {

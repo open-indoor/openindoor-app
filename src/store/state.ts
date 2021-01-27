@@ -8,6 +8,7 @@ export const InitialState: MapState = {
     bearing: 51,
     zoom: 17,
     country: "france",
-    building: ""
+    building: "",
+    floor: ""
   }
 };
