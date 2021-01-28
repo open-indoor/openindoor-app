@@ -11,7 +11,8 @@ const routes: Array<RouteConfig> = [
     redirect: "/map"
   },
   {
-    path: "/map",
+    path:
+      "/map/:country?/:long?/:lat?/:zoom?/:bearing?/:pitch?/:floor?/:building?",
     name: "Map",
     component: Map
   },

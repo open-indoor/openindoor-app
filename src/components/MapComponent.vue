@@ -31,7 +31,7 @@ import mapboxgl from "mapbox-gl";
 import OpenIndoor from "../custom-gl/src/index";
 import store from "../store";
 import { State } from "vuex-class";
-import { MapState, Map } from "../types";
+import { MapState, Map, MapQuery } from "../types";
 import config from "../config";
 
 const OpenMap = namespace("OpenMap");
@@ -61,20 +61,7 @@ export default class MapComponent extends Vue {
   }
 
   trucateDecimal(number, decimalPlaces) {
-    const decimalValue = number.toString().split(".");
-
-    if (decimalValue.length > 1) {
-      const trucateIndex = decimalValue[1].length - decimalPlaces;
-      const trucatedDecimalValue =
-        decimalValue[1].length > decimalPlaces
-          ? decimalValue[1].slice(0, "-" + trucateIndex)
-          : decimalValue[1];
-
-      return decimalValue[0] + "." + trucatedDecimalValue;
-    } else {
-      // if integer value then return number as it is.
-      return number;
-    }
+    return +parseFloat(number).toFixed(decimalPlaces);
   }
 
   generateLink() {
@@ -84,10 +71,11 @@ export default class MapComponent extends Vue {
     const longitude = this.trucateDecimal(cen.lng, 6);
     const latitude = this.trucateDecimal(cen.lat, 6);
     const zoomLevel = this.trucateDecimal(this.map.getZoom(), 4);
+    const bearing = this.trucateDecimal(this.map.getBearing(), 4);
 
-    this.link = `${window.location.protocol}//${window.location.host}/landing/${
+    this.link = `${window.location.protocol}//${window.location.host}/map/${
       this.mapState.country
-    }/${longitude}/${latitude}/${zoomLevel}/${this.map.getBearing()}/${this.map.getPitch()}/${
+    }/${longitude}/${latitude}/${zoomLevel}/${bearing}/${this.map.getPitch()}/${
       typeof this.openIndoor !== "undefined" ? this.openIndoor.level : "0"
     }/0  
       `;
@@ -108,6 +96,26 @@ export default class MapComponent extends Vue {
     this.linkVisible = false;
   }
 
+  created() {
+    const params = this.$route.params;
+    this.$store.dispatch("updateMap", {
+      center:
+        params.long && params.lat
+          ? [params.long, params.lat]
+          : [-1.7030681187784467, 48.11947479723537],
+      pitch: params.pitch ? Number(params.pitch) : 60,
+      maxPitch: 60,
+      bearing: params.bearing ? Number(params.bearing) : 51,
+      zoom: params.zoom ? Number(params.zoom) : 17,
+      country: params.country ? params.country : "france",
+      building: params.building ? params.building : "",
+      floor: params.floor ? Number(params.floor) : ""
+    });
+
+    if (this.mapState.floor !== "") {
+      this.level = Number(this.mapState.floor);
+    }
+  }
   mounted() {
     /*this.$store.watch(
     (state:MapState)=>{
@@ -326,31 +334,15 @@ export default class MapComponent extends Vue {
 
     that.map.on("moveend", function(event) {
       //spreserveDataPoints(false);
+      that.updateMapStoreDetail();
     });
 
     that.map.on("wheel", function(event) {
-      if (that.map.getZoom() < 19) {
-        // dispatch
-        const mapState = Object.assign({}, that.mapState, { floor: "" });
-        that.$store.dispatch("updateMap", mapState);
-        // that.$store.dispatch("updateMap", {
-        //   center:
-        //     params.long && params.lat
-        //       ? [params.long, params.lat]
-        //       : [-1.7030681187784467, 48.11947479723537],
-        //   pitch: params.pitch ? params.pitch : 60,
-        //   maxPitch: 60,
-        //   bearing: params.bearing ? params.bearing : 50,
-        //   zoom: params.zoom ? params.zoom : 70,
-        //   country: params.country ? params.country : "france",
-        //   building: params.building ? params.building : 0,
-        //   floor: params.floor ? params.floor : 0
-        // });
-      }
+      that.updateMapStoreDetail();
     });
 
     that.map.on("load", () => {
-      that.map.loadImage("custom_marker.png", (error, image) => {
+      that.map.loadImage("/custom_marker.png", (error, image) => {
         if (error) throw error;
         that.map.addImage("custom-marker", image);
         // Add a GeoJSON source with 2 points
@@ -394,14 +386,56 @@ export default class MapComponent extends Vue {
           });
           // add level control on map
           that.map.addControl(that.openIndoor);
-
-          // select floor if it is set in store
-          if (that.mapState.floor !== "") {
-            that.openIndoor.setLevel(that.mapState.floor);
-          }
         })
         .catch(error => alert("Erreur : " + error));
     });
+  }
+
+  updateMapStoreDetail() {
+    const cen = this.map.getCenter();
+    const longitude = this.trucateDecimal(cen.lng, 6);
+    const latitude = this.trucateDecimal(cen.lat, 6);
+    const zoomLevel = this.trucateDecimal(this.map.getZoom(), 4);
+    const bearing = this.trucateDecimal(this.map.getBearing(), 4);
+
+    // update store
+    const mapState = Object.assign({}, this.mapState, {
+      floor: this.map.getZoom() < 19 ? "" : this.level.toString(),
+      center: [longitude, latitude],
+      zoom: zoomLevel,
+      bearing: bearing
+    });
+    this.$store.dispatch("updateMap", mapState);
+
+    // :country?/:long?/:lat?/:zoom?/:bearing?/:pitch?/:floor?/:building?
+
+    const postParams: MapQuery = {
+      country: "france",
+      long: longitude.toString(),
+      lat: latitude.toString(),
+      zoom: zoomLevel.toString(),
+      bearing: this.mapState.bearing.toString(),
+      pitch: this.mapState.pitch.toString()
+    };
+
+    if (this.mapState.floor !== undefined && this.mapState.floor !== "") {
+      // set floor only if it is set
+      postParams.floor = this.mapState.floor;
+    }
+
+    if (this.mapState.building !== undefined && this.mapState.building !== "") {
+      // set building only if it is set
+      postParams.building = this.mapState.building;
+    }
+
+    this.$router
+      .push({
+        name: "Map",
+        params: postParams
+      })
+      .catch(() => {
+        // const error = err;
+      });
   }
 }
 </script>
