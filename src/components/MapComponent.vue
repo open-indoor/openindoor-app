@@ -31,7 +31,7 @@ import mapboxgl from "mapbox-gl";
 import OpenIndoor from "../custom-gl/src/index";
 import store from "../store";
 import { State } from "vuex-class";
-import { MapState, Map, MapQuery } from "../types";
+import { MapState, Map } from "../types";
 import config from "../config";
 
 const OpenMap = namespace("OpenMap");
@@ -409,13 +409,24 @@ export default class MapComponent extends Vue {
 
     // :country?/:long?/:lat?/:zoom?/:bearing?/:pitch?/:floor?/:building?
 
-    const postParams: MapQuery = {
+    const postParams: {
+      country: string;
+      long: string;
+      lat: string;
+      zoom: string;
+      bearing: string;
+      pitch: string;
+      floor: string;
+      building: string;
+    } = {
       country: "france",
       long: longitude.toString(),
       lat: latitude.toString(),
       zoom: zoomLevel.toString(),
       bearing: this.mapState.bearing.toString(),
-      pitch: this.mapState.pitch.toString()
+      pitch: this.mapState.pitch.toString(),
+      floor: "0",
+      building: "0"
     };
 
     if (this.mapState.floor !== undefined && this.mapState.floor !== "") {
